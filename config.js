@@ -1,19 +1,22 @@
 const Twitter = require('twitter');
 const dotenv = require("dotenv");
 const fs = require('fs');
-
+const Promise = require('bluebird')
 dotenv.config()
 
+
 const auth = () => {
-    let keys = {
-        api_key: process.env.API_KEY,
-        api_secret: process.env.SECRET_KEY,
+    let secret = {
+        consumer_key: process.env.API_KEY,
+        consumer_secret: process.env.SECRET_KEY,
         access_token_key: process.env.ACCESS_TOKEN,
         access_token_secret: process.env.ACCESS_TOKEN_SECRET
     }
-    var client = new Twitter(keys);
+
+    var client = new Twitter(secret);
     return client;
 }
+
 
 const initMediaUpload = (client, pathToFile) => {
     const mediaType = "image/png";
@@ -68,6 +71,7 @@ const finalizeMediaUpload = (client, mediaId) => {
         })
     })
 }
+
 const postReplyWithMedia = (client, mediaFilePath, replyTweet) => {
 
     initMediaUpload(client, mediaFilePath)
@@ -75,17 +79,18 @@ const postReplyWithMedia = (client, mediaFilePath, replyTweet) => {
         .then((mediaId) => finalizeMediaUpload(client, mediaId))
         .then((mediaId) => {
             let statusObj = {
-                status: "@" + replyTweet.user.screen_name +" below is your QRCode",
+                status: "@" + replyTweet.user.screen_name +" :)))",
                 in_reply_to_status_id: replyTweet.id_str,
                 media_ids: mediaId
             }
             client.post('statuses/update', statusObj, (error, tweetReply, response) => {
                 if (error) {
-                    console.log("Error: "+error);
+                    console.log(error);
                 }
-                console.log("Reply: "+tweetReply.text);
+                console.log(tweetReply.text);
             });
         })
 }
+
 
 module.exports = { auth, postReplyWithMedia};
